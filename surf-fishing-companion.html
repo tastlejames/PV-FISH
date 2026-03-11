@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shore Strike — UNICO Surf Fishing</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital@1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean-deep: #0a1628;
+    --ocean-mid: #112240;
+    --ocean-surface: #1a3a5c;
+    --teal: #1e7a8c;
+    --teal-light: #2aa8c0;
+    --gold: #e8a84c;
+    --gold-light: #f5c878;
+    --sand: #d4b483;
+    --foam: #c8dde8;
+    --text-primary: #e8f0f7;
+    --text-secondary: #8aafc9;
+    --text-muted: #4a6882;
+    --border: rgba(30,122,140,0.25);
+    --card-bg: rgba(17,34,64,0.7);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--ocean-deep);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated ocean background */
+  body::before {
+    content:'';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 100%, rgba(30,122,140,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 30% at 20% 80%, rgba(26,58,92,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 80% 20%, rgba(232,168,76,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Wave lines */
+  body::after {
+    content:'';
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 180px;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 28px,
+      rgba(30,122,140,0.07) 28px,
+      rgba(30,122,140,0.07) 30px
+    );
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 820px; margin: 0 auto; padding: 0 20px 60px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 48px 0 32px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,168,76,0.1);
+    border: 1px solid rgba(232,168,76,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .header-badge::before { content: '📍'; font-size: 10px; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--teal-light);
+  }
+
+  .header-sub {
+    margin-top: 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    font-weight: 300;
+  }
+
+  .divider {
+    margin: 28px auto;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--teal), transparent);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 32px;
+  }
+
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab.active {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .tab:hover:not(.active) { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
+
+  .panel { display: none; animation: fadeUp 0.3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(10px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content:'';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Lure Cards */
+  .lure-grid { display: flex; flex-direction: column; gap: 16px; }
+
+  .lure-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lure-card::before {
+    content:'';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+    background: var(--lure-color, var(--teal));
+    transition: width 0.2s;
+  }
+
+  .lure-card:hover { border-color: rgba(30,122,140,0.5); transform: translateX(3px); }
+  .lure-card:hover::before { width: 5px; }
+
+  .lure-card.expanded .lure-detail { display: block; }
+  .lure-card.expanded { border-color: rgba(30,122,140,0.5); }
+
+  .lure-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+
+  .lure-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .lure-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--lure-color, var(--teal-light));
+    background: rgba(30,122,140,0.12);
+    border: 1px solid rgba(30,122,140,0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .lure-tagline {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    font-style: italic;
+    font-family: 'Libre Baskerville', serif;
+  }
+
+  .lure-zones {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .zone-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+  }
+
+  .zone-surface { color: var(--gold-light); border-color: rgba(232,168,76,0.35); background: rgba(232,168,76,0.08); }
+  .zone-mid { color: var(--teal-light); border-color: rgba(42,168,192,0.35); background: rgba(42,168,192,0.08); }
+  .zone-bottom { color: var(--sand); border-color: rgba(212,180,131,0.35); background: rgba(212,180,131,0.08); }
+  .zone-reaction { color: #e07070; border-color: rgba(224,112,112,0.35); background: rgba(224,112,112,0.08); }
+
+  .lure-detail { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+  .detail-item label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+
+  .detail-item span {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .retrieve-box {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+
+  .retrieve-box h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--teal-light);
+    margin-bottom: 8px;
+  }
+
+  .retrieve-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  .target-fish { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .fish-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: rgba(232,168,76,0.1);
+    border: 1px solid rgba(232,168,76,0.2);
+    border-radius: 6px;
+    color: var(--gold);
+  }
+
+  .expand-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* Conditions Panel */
+  .conditions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+
+  .cond-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .cond-icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .cond-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+  .cond-value { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+  .cond-sub { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+
+  .tide-chart {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 16px;
+  }
+
+  .tide-chart h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .tide-bar-container { position: relative; height: 70px; margin-bottom: 8px; }
+
+  .tide-bar-bg {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .tide-wave {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(30,122,140,0.5), rgba(30,122,140,0.1));
+    border-radius: 6px 6px 0 0;
+    animation: tideRise 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes tideRise {
+    from { height: 30%; }
+    to { height: 65%; }
+  }
+
+  .tide-labels { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); }
+
+  .time-windows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .time-window {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    backdrop-filter: blur(10px);
+  }
+
+  .time-window.prime { border-color: rgba(232,168,76,0.35); }
+
+  .tw-icon { font-size: 1.4rem; }
+  .tw-info { flex: 1; }
+  .tw-time { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); font-weight: 500; }
+  .tw-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .tw-rating { font-size: 13px; }
+
+  /* Tactics Panel */
+  .tactic-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .tactic-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .tactic-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: rgba(30,122,140,0.3);
+    line-height: 1;
+    min-width: 32px;
+  }
+
+  .tactic-body h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .tactic-body p { font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
+
+  .tactic-lures {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .tactic-lure-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(30,122,140,0.15);
+    border: 1px solid rgba(30,122,140,0.25);
+    color: var(--teal-light);
+  }
+
+  /* Setup Panel */
+  .setup-section { margin-bottom: 28px; }
+
+  .setup-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 12px;
+  }
+
+  .setup-card h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .setup-card h4::before {
+    content:'';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .setup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+
+  .setup-row:last-child { border-bottom: none; }
+  .setup-row .key { color: var(--text-muted); }
+  .setup-row .val { color: var(--text-primary); font-weight: 500; text-align: right; }
+
+  .quick-tip {
+    background: rgba(232,168,76,0.08);
+    border: 1px solid rgba(232,168,76,0.2);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--sand);
+    line-height: 1.6;
+    margin-bottom: 10px;
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Cache banner */
+  .cache-banner {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cache-none {
+    background: rgba(232,168,76,0.08);
+    border: 1px solid rgba(232,168,76,0.25);
+    color: var(--sand);
+  }
+
+  .cache-partial {
+    background: rgba(30,122,140,0.1);
+    border: 1px solid rgba(30,122,140,0.3);
+    color: var(--text-secondary);
+  }
+
+  .cache-done {
+    background: rgba(100,200,120,0.08);
+    border: 1px solid rgba(100,200,120,0.25);
+    color: #7dd9a8;
+  }
+
+  .cache-btn {
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .cache-btn:hover { background: var(--teal-light); }
+
+  /* Fish Panel */
+  .fish-grid { display: flex; flex-direction: column; gap: 20px; }
+
+  .fish-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s;
+  }
+
+  .fish-card:hover { border-color: rgba(30,122,140,0.5); }
+
+  .fish-image-wrap {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .fish-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .fish-card:hover .fish-image-wrap img { transform: scale(1.04); }
+
+  .fish-likelihood {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(10,22,40,0.85);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(4px);
+  }
+
+  .fish-body { padding: 18px 20px; }
+
+  .fish-name-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+
+  .fish-common {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .fish-scientific {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .fish-fight {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(232,168,76,0.1);
+    border: 1px solid rgba(232,168,76,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .fish-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+
+  .fish-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+
+  .fish-meta-item label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .fish-meta-item span { font-size: 12px; color: var(--text-primary); font-weight: 500; }
+
+  .fish-lures { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  .fish-lure-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(30,122,140,0.15);
+    border: 1px solid rgba(30,122,140,0.25);
+    color: var(--teal-light);
+  }
+
+  .fish-id-tip {
+    margin-top: 10px;
+    background: rgba(0,0,0,0.2);
+    border-left: 2px solid var(--teal);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .fish-id-tip strong { color: var(--teal-light); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-badge">UNICO 20°105° · Riviera Nayarit · Pacific Shore</div>
+    <h1>Shore <em>Strike</em></h1>
+    <div class="header-sub">Compact Surf Fishing Field Guide · 11' Travel Rod Setup</div>
+    <div class="divider"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showPanel('lures', this)">🎣 Lures</button>
+    <button class="tab" onclick="showPanel('fish', this)">🐟 Fish</button>
+    <button class="tab" onclick="showPanel('conditions', this)">🌊 Conditions</button>
+    <button class="tab" onclick="showPanel('tactics', this)">🎯 Tactics</button>
+    <button class="tab" onclick="showPanel('setup', this)">⚙️ Setup</button>
+  </div>
+
+  <!-- LURES PANEL -->
+  <div id="panel-lures" class="panel active">
+    <div class="section-label">Your Arsenal — 5 Lures</div>
+    <div class="lure-grid">
+
+      <div class="lure-card" style="--lure-color:#e8a84c" onclick="toggleLure(this)">
+        <div class="lure-header">
+          <div>
+            <div class="lure-name">Kastmaster Spoon</div>
+            <div class="lure-tagline">Long casts, fast retrieves, maximum flash</div>
+          </div>
+          <div class="lure-type" style="color:#e8a84c;border-color:rgba(232,168,76,0.3);background:rgba(232,168,76,0.1)">Spoon</div>
+        </div>
+        <div class="lure-zones">
+          <span class="zone-mid">Mid-Water</span>
+          <span class="zone-reaction">Reaction</span>
+        </div>
+        <div class="expand-hint">tap for details ↓</div>
+        <div class="lure-detail">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Best Conditions</label><span>Choppy surf, wind</span></div>
+            <div class="detail-item"><label>Retrieve Speed</label><span>Fast to very fast</span></div>
+            <div class="detail-item"><label>Best Time</label><span>Any light condition</span></div>
+            <div class="detail-item"><label>Water Depth</label><span>All depths</span></div>
+          </div>
+          <div class="retrieve-box">
+            <h4>Retrieve Techniques</h4>
+            <p><strong style="color:var(--text-primary)">Burn & Kill</strong> — Reel fast for 5–6 turns, then let it flutter down 1–2 seconds. Repeat. Deadly on jacks.<br><br>
+            <strong style="color:var(--text-primary)">High-Speed Sweep</strong> — Cast parallel to shore along a sandbar edge and burn it back. Triggers ambush strikes.</p>
+          </div>
+          <div class="section-label" style="margin-top:0">Target Species</div>
+          <div class="target-fish">
+            <span class="fish-tag">🐟 Jacks (Trevally)</span>
+            <span class="fish-tag">🐠 Spanish Mackerel</span>
+            <span class="fish-tag">🐡 Ladyfish</span>
+            <span class="fish-tag">🦈 Barracuda</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lure-card" style="--lure-color:#c8dde8" onclick="toggleLure(this)">
+        <div class="lure-header">
+          <div>
+            <div class="lure-name">White Bucktail Jig</div>
+            <div class="lure-tagline">Slow baitfish presentation, versatile depth control</div>
+          </div>
+          <div class="lure-type" style="color:#c8dde8;border-color:rgba(200,221,232,0.3);background:rgba(200,221,232,0.08)">Jig</div>
+        </div>
+        <div class="lure-zones">
+          <span class="zone-mid">Mid-Water</span>
+          <span class="zone-bottom">Near-Bottom</span>
+        </div>
+        <div class="expand-hint">tap for details ↓</div>
+        <div class="lure-detail">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Best Conditions</label><span>Calm to moderate surf</span></div>
+            <div class="detail-item"><label>Retrieve Speed</label><span>Slow to medium</span></div>
+            <div class="detail-item"><label>Best Time</label><span>Incoming tide</span></div>
+            <div class="detail-item"><label>Water Depth</label><span>Bottom to mid column</span></div>
+          </div>
+          <div class="retrieve-box">
+            <h4>Retrieve Techniques</h4>
+            <p><strong style="color:var(--text-primary)">Lift & Drop</strong> — Cast, let it sink to bottom, then lift rod tip 18" and let it fall back. Work it along the bottom slowly.<br><br>
+            <strong style="color:var(--text-primary)">Swim Retrieve</strong> — Keep just off bottom with a slow, steady wind. Add a slight rod pulse every 3–4 turns to mimic a wounded baitfish.</p>
+          </div>
+          <div class="section-label" style="margin-top:0">Target Species</div>
+          <div class="target-fish">
+            <span class="fish-tag">🐟 Roosterfish</span>
+            <span class="fish-tag">🐠 Snook</span>
+            <span class="fish-tag">🐡 Jack Crevalle</span>
+            <span class="fish-tag">🦑 Corvina</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lure-card" style="--lure-color:#7dd9a8" onclick="toggleLure(this)">
+        <div class="lure-header">
+          <div>
+            <div class="lure-name">White Paddle-Tail Swimbait</div>
+            <div class="lure-tagline">Natural movement, calm water killer</div>
+          </div>
+          <div class="lure-type" style="color:#7dd9a8;border-color:rgba(125,217,168,0.3);background:rgba(125,217,168,0.08)">Swimbait</div>
+        </div>
+        <div class="lure-zones">
+          <span class="zone-mid">Mid-Water</span>
+          <span class="zone-bottom">Near-Bottom</span>
+        </div>
+        <div class="expand-hint">tap for details ↓</div>
+        <div class="lure-detail">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Best Conditions</label><span>Calm, clear water</span></div>
+            <div class="detail-item"><label>Retrieve Speed</label><span>Slow to medium</span></div>
+            <div class="detail-item"><label>Best Time</label><span>Early morning calm</span></div>
+            <div class="detail-item"><label>Water Depth</label><span>2–10 ft</span></div>
+          </div>
+          <div class="retrieve-box">
+            <h4>Retrieve Techniques</h4>
+            <p><strong style="color:var(--text-primary)">Steady Swim</strong> — Slow, consistent retrieve that lets the paddle tail do all the work. Count down to your depth before reeling.<br><br>
+            <strong style="color:var(--text-primary)">Pause & Flutter</strong> — Reel 4–5 cranks, pause 2 seconds. The tail keeps moving on the fall. Works great near sandbars.</p>
+          </div>
+          <div class="section-label" style="margin-top:0">Target Species</div>
+          <div class="target-fish">
+            <span class="fish-tag">🐟 Roosterfish</span>
+            <span class="fish-tag">🐠 Snook</span>
+            <span class="fish-tag">🐡 Sierra Mackerel</span>
+            <span class="fish-tag">🦑 Pompano</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lure-card" style="--lure-color:#f5c878" onclick="toggleLure(this)">
+        <div class="lure-header">
+          <div>
+            <div class="lure-name">Heddon Super Spook</div>
+            <div class="lure-tagline">Topwater walk-the-dog · bone color</div>
+          </div>
+          <div class="lure-type" style="color:#f5c878;border-color:rgba(245,200,120,0.3);background:rgba(245,200,120,0.08)">Topwater</div>
+        </div>
+        <div class="lure-zones">
+          <span class="zone-surface">Surface</span>
+          <span class="zone-reaction">Reaction</span>
+        </div>
+        <div class="expand-hint">tap for details ↓</div>
+        <div class="lure-detail">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Best Conditions</label><span>Glassy to light chop</span></div>
+            <div class="detail-item"><label>Retrieve Speed</label><span>Slow walk, rod tip down</span></div>
+            <div class="detail-item"><label>Best Time</label><span>🌅 Sunrise / 🌇 Sunset only</span></div>
+            <div class="detail-item"><label>Water Depth</label><span>Surface film</span></div>
+          </div>
+          <div class="retrieve-box">
+            <h4>Walk-The-Dog Technique</h4>
+            <p><strong style="color:var(--text-primary)">Classic WTD</strong> — Rod tip pointed DOWN at 45°. Short downward twitches while slowly reeling. Each twitch makes the lure dart left-right. Rhythm is everything: twitch...twitch...twitch.<br><br>
+            <strong style="color:var(--text-primary)">Pro Tip</strong> — Let the lure sit completely still for 3–5 seconds after a cast near structure. Jacks and roosters can't resist it.</p>
+          </div>
+          <div class="section-label" style="margin-top:0">Target Species</div>
+          <div class="target-fish">
+            <span class="fish-tag">🐟 Roosterfish</span>
+            <span class="fish-tag">🐠 Jack Crevalle</span>
+            <span class="fish-tag">🐡 Ladyfish</span>
+            <span class="fish-tag">🦈 Needlefish</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lure-card" style="--lure-color:#2aa8c0" onclick="toggleLure(this)">
+        <div class="lure-header">
+          <div>
+            <div class="lure-name">Yo-Zuri Crystal Minnow</div>
+            <div class="lure-tagline">4¾" · Realistic sardine profile · twitch or steady</div>
+          </div>
+          <div class="lure-type" style="color:#2aa8c0;border-color:rgba(42,168,192,0.3);background:rgba(42,168,192,0.1)">Crankbait</div>
+        </div>
+        <div class="lure-zones">
+          <span class="zone-surface">Subsurface</span>
+          <span class="zone-mid">Mid-Water</span>
+          <span class="zone-reaction">Reaction</span>
+        </div>
+        <div class="expand-hint">tap for details ↓</div>
+        <div class="lure-detail">
+          <div class="detail-grid">
+            <div class="detail-item"><label>Best Conditions</label><span>Any — most versatile</span></div>
+            <div class="detail-item"><label>Retrieve Speed</label><span>Slow twitch to medium</span></div>
+            <div class="detail-item"><label>Best Time</label><span>Anytime, especially overcast</span></div>
+            <div class="detail-item"><label>Running Depth</label><span>Subsurface 1–4 ft</span></div>
+          </div>
+          <div class="retrieve-box">
+            <h4>Retrieve Techniques</h4>
+            <p><strong style="color:var(--text-primary)">Wounded Sardine</strong> — Cast, let it settle, then twitch the rod tip 2–3 times rapidly, pause 2 seconds, repeat. The internal rattle and flash drive fish crazy.<br><br>
+            <strong style="color:var(--text-primary)">Steady Crank</strong> — Medium retrieve just below the surface. Works well parallel to shore when you spot bait activity. Switch to twitching the moment you feel a follow.</p>
+          </div>
+          <div class="section-label" style="margin-top:0">Target Species</div>
+          <div class="target-fish">
+            <span class="fish-tag">🐟 All Jacks</span>
+            <span class="fish-tag">🐠 Spanish Mackerel</span>
+            <span class="fish-tag">🐡 Roosterfish</span>
+            <span class="fish-tag">🦑 Snook</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FISH PANEL -->
+  <div id="panel-fish" class="panel">
+    <div class="section-label">Species You're Likely to Catch</div>
+    <div id="cache-banner" class="cache-banner cache-none">
+      📶 Photos need WiFi to display. <button class="cache-btn" onclick="cacheAllImages()">Save for Offline</button>
+    </div>
+    <div class="fish-grid">
+
+      <!-- Jack Crevalle -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="jack" src="https://mexicanfish.com/wp-content/uploads/Pacific-Crevalle-Jack-Caranx-caninus.jpg" alt="Pacific Jack Crevalle" onerror="this.style.background='#1a3a5c';this.style.height='100%';this.alt='Jack Crevalle'">
+          <div class="fish-likelihood">⭐⭐⭐ Very Likely</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Jack Crevalle</div>
+            <div class="fish-fight">💪 Fighter</div>
+          </div>
+          <div class="fish-scientific">Caranx caninus · Pacific Crevalle Jack</div>
+          <p class="fish-desc">The most common surf predator along Riviera Nayarit. Jacks hunt in aggressive packs, charging bait schools with reckless speed. Even a 5–8 lb jack will smoke your drag and test your knots — pound for pound one of the hardest fighting fish in the surf.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>3–15 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>Year-round</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Surf troughs, bait balls</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Violent, reaction-based</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Kastmaster</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+            <span class="fish-lure-pill">Super Spook</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Deep, laterally compressed silver-gold body with a blunt forehead and yellow-tipped fins. A yellow stripe along the lateral line is common. Often seen in schools of 5–30+ fish chasing bait.</div>
+        </div>
+      </div>
+
+      <!-- Roosterfish -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="roosterfish" src="https://www.bdoutdoors.com/wp-content/uploads/2019/04/roosterfish-identification.jpg" alt="Roosterfish" onerror="this.style.background='#1a3a5c';this.alt='Roosterfish'">
+          <div class="fish-likelihood">⭐⭐ Possible</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Roosterfish</div>
+            <div class="fish-fight">🏆 Trophy</div>
+          </div>
+          <div class="fish-scientific">Nematistius pectoralis</div>
+          <p class="fish-desc">The bucket-list fish of the Mexican Pacific coast. Unmistakable with their dramatic comb-like dorsal spines raised when excited. Roosterfish patrol the same stretches of beach like territorial bulls — patience and the right presentation can get one from shore.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>5–30 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>June–Oct peak</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Sandy beach, structure edges</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Follows then commits</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Super Spook</span>
+            <span class="fish-lure-pill">Bucktail Jig</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Seven long, distinctive dorsal spines (the "rooster comb") that rise dramatically when the fish is excited or attacking. Blue-silver body with two dark curved stripes on the sides. Unmistakable once seen.</div>
+        </div>
+      </div>
+
+      <!-- Sierra / Spanish Mackerel -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="sierra" src="https://mexicanfish.com/wp-content/uploads/Sierra-Mackerel-Scomberomorus-sierra.jpg" alt="Sierra Mackerel" onerror="this.style.background='#1a3a5c';this.alt='Sierra Mackerel'">
+          <div class="fish-likelihood">⭐⭐⭐ Very Likely</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Sierra Mackerel</div>
+            <div class="fish-fight">⚡ Speed Demon</div>
+          </div>
+          <div class="fish-scientific">Scomberomorus sierra · Pacific Sierra</div>
+          <p class="fish-desc">The Pacific equivalent of Spanish mackerel. Blistering fast, these razor-toothed speedsters will attack almost anything that moves quickly. A single run can strip 40 yards of line in seconds. Watch your fingers at the livewell — their teeth are no joke.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>2–8 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>Nov–Apr peak</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Open surf, bait schools</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Explosive, fast</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Kastmaster</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+            <span class="fish-lure-pill">Swimbait</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Slim, torpedo-shaped silver body with rows of golden-orange spots along the sides. Deeply forked tail. Your 30 lb fluoro leader is essential — their teeth will cut through lighter mono instantly.</div>
+        </div>
+      </div>
+
+      <!-- Needlefish -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="needlefish" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Strongylura_marina.jpg/1200px-Strongylura_marina.jpg" alt="Needlefish" onerror="this.parentElement.style.background='#112240';this.alt='Needlefish'">
+          <div class="fish-likelihood">⭐⭐⭐ Very Common</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Needlefish</div>
+            <div class="fish-fight">🎭 Surprise Grab</div>
+          </div>
+          <div class="fish-scientific">Strongylura spp. / Tylosurus spp.</div>
+          <p class="fish-desc">A constant presence in Nayarit surf. Needlefish lurk just below the surface and slash at lures with their long beaks. They jump and thrash acrobatically when hooked — exciting to catch but tricky to land. Handle carefully; their beak can draw blood.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>1–4 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>Year-round</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Surface, very shallow water</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Slash, often miss-hook</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Super Spook</span>
+            <span class="fish-lure-pill">Kastmaster</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Impossibly long, slender silver-green body with an elongated beak lined with small teeth on both jaws. Bone-green skeleton visible when held to light. Often spotted skipping across the surface near bait.</div>
+        </div>
+      </div>
+
+      <!-- Ladyfish -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="ladyfish" src="https://thebeachfisher.com/wp-content/uploads/2022/04/Ladyfish-scaled.jpg" alt="Ladyfish" onerror="this.parentElement.style.background='#112240';this.alt='Ladyfish'">
+          <div class="fish-likelihood">⭐⭐⭐ Very Likely</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Ladyfish</div>
+            <div class="fish-fight">🌀 Acrobat</div>
+          </div>
+          <div class="fish-scientific">Elops affinis · Pacific Ladyfish</div>
+          <p class="fish-desc">The surf fishing equivalent of fireworks. Ladyfish hit hard, run fast, and leap repeatedly — sometimes 4–5 jumps per fight. They run in loose schools and will absolutely demolish topwater lures at dawn. Bony and not great to eat, but pure fun on light gear.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>1–4 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>Year-round</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Surf, troughs, sandbars</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Fast, aggressive, topwater</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Super Spook</span>
+            <span class="fish-lure-pill">Kastmaster</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Slender, silvery torpedo body with large eyes and a deeply forked tail, similar in shape to a small tarpon (they're related). Scales are very small and fine. Often seen skipping in packs across the surface chasing bait.</div>
+        </div>
+      </div>
+
+      <!-- Bonito -->
+      <div class="fish-card">
+        <div class="fish-image-wrap">
+          <img data-fish="bonito" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pacific_Bonito.jpg/1200px-Pacific_Bonito.jpg" alt="Pacific Bonito" onerror="this.parentElement.style.background='#112240';this.alt='Pacific Bonito'">
+          <div class="fish-likelihood">⭐⭐ Possible</div>
+        </div>
+        <div class="fish-body">
+          <div class="fish-name-row">
+            <div class="fish-common">Pacific Bonito</div>
+            <div class="fish-fight">🚀 Distance Runner</div>
+          </div>
+          <div class="fish-scientific">Sarda chiliensis</div>
+          <p class="fish-desc">A tuna cousin that patrols the surf zone in schools when bait is thick. Bonito hit with the confidence of a bigger fish and take long, powerful runs that will test your drag. Often show up at the same time as jacks when baitfish are stacked on the beach. Great eating — firm, dark, rich flesh.</p>
+          <div class="fish-meta">
+            <div class="fish-meta-item"><label>Typical Shore Size</label><span>2–10 lbs</span></div>
+            <div class="fish-meta-item"><label>Season</label><span>Oct–April peak</span></div>
+            <div class="fish-meta-item"><label>Habitat</label><span>Open surf, bait schools</span></div>
+            <div class="fish-meta-item"><label>Strike Style</label><span>Hard, fast, powerful</span></div>
+          </div>
+          <div class="section-label" style="margin:0 0 8px">Best Lures</div>
+          <div class="fish-lures">
+            <span class="fish-lure-pill">Kastmaster</span>
+            <span class="fish-lure-pill">Crystal Minnow</span>
+            <span class="fish-lure-pill">Swimbait</span>
+          </div>
+          <div class="fish-id-tip"><strong>ID Tip:</strong> Streamlined, tuna-shaped body with dark diagonal stripes on the upper back (above the lateral line only). Metallic blue-green back, silver belly. Looks like a small, striped tuna — because that's essentially what it is.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONDITIONS PANEL -->
+  <div id="panel-conditions" class="panel">
+    <div class="section-label">Best Fishing Windows</div>
+
+    <div class="time-windows">
+      <div class="time-window prime">
+        <div class="tw-icon">🌅</div>
+        <div class="tw-info">
+          <div class="tw-time">SUNRISE WINDOW · 6:00 – 8:30 AM</div>
+          <div class="tw-desc">Prime topwater hour. Low light triggers roosterfish and jacks to the surface. Start with Super Spook, transition to Crystal Minnow as sun rises.</div>
+        </div>
+        <div class="tw-rating">⭐⭐⭐</div>
+      </div>
+      <div class="time-window">
+        <div class="tw-icon">🌊</div>
+        <div class="tw-info">
+          <div class="tw-time">INCOMING TIDE · 1–2 hrs before high</div>
+          <div class="tw-desc">Baitfish stack on sandbars as water rises. Work bucktail jig and swimbait along the edge of the bar. Often the best consistent bite window.</div>
+        </div>
+        <div class="tw-rating">⭐⭐⭐</div>
+      </div>
+      <div class="time-window">
+        <div class="tw-icon">☁️</div>
+        <div class="tw-info">
+          <div class="tw-time">OVERCAST MID-DAY</div>
+          <div class="tw-desc">Clouds reduce surface glare — fish roam more freely. Kastmaster and Crystal Minnow shine here with their flash and rattle.</div>
+        </div>
+        <div class="tw-rating">⭐⭐</div>
+      </div>
+      <div class="time-window prime">
+        <div class="tw-icon">🌇</div>
+        <div class="tw-info">
+          <div class="tw-time">SUNSET WINDOW · 5:30 – 7:00 PM</div>
+          <div class="tw-desc">Second topwater window. Jacks often form into feeding packs at dusk. Walk the Super Spook through any surface disturbance you spot.</div>
+        </div>
+        <div class="tw-rating">⭐⭐⭐</div>
+      </div>
+    </div>
+
+    <div class="section-label">Reading the Beach</div>
+    <div class="tide-chart">
+      <h3>Tide & Water Reading</h3>
+      <div class="tide-bar-container">
+        <div class="tide-bar-bg"><div class="tide-wave"></div></div>
+      </div>
+      <div class="tide-labels">
+        <span>Low</span><span>↑ Incoming ↑</span><span>High</span>
+      </div>
+    </div>
+
+    <div class="conditions-grid">
+      <div class="cond-card">
+        <div class="cond-icon">🔍</div>
+        <div class="cond-label">Look For</div>
+        <div class="cond-value" style="font-size:1rem">Bait Balls</div>
+        <div class="cond-sub">Birds diving = fish below</div>
+      </div>
+      <div class="cond-card">
+        <div class="cond-icon">🌊</div>
+        <div class="cond-label">Best Surf</div>
+        <div class="cond-value" style="font-size:1rem">1–3 ft swell</div>
+        <div class="cond-sub">Light chop = ideal</div>
+      </div>
+      <div class="cond-card">
+        <div class="cond-icon">📍</div>
+        <div class="cond-label">Hotspots</div>
+        <div class="cond-value" style="font-size:1rem">Rip Channels</div>
+        <div class="cond-sub">Where sandbars break</div>
+      </div>
+      <div class="cond-card">
+        <div class="cond-icon">🌡️</div>
+        <div class="cond-label">Water Temp</div>
+        <div class="cond-value" style="font-size:1rem">78–84°F</div>
+        <div class="cond-sub">Riviera Nayarit avg</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TACTICS PANEL -->
+  <div id="panel-tactics" class="panel">
+    <div class="section-label">Proven Shore Tactics</div>
+    <div class="tactic-list">
+
+      <div class="tactic-card">
+        <div class="tactic-num">01</div>
+        <div class="tactic-body">
+          <h4>Fan Cast the Beach — Cover Water First</h4>
+          <p>Don't stay in one spot. Cast at 10 o'clock, 11 o'clock, and 12 o'clock positions to fan the water in front of you. If no strikes in 6–8 casts, move 30 yards down the beach and repeat. Jacks and ladyfish roam — you need to find them.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Kastmaster</span><span class="tactic-lure-tag">Crystal Minnow</span></div>
+        </div>
+      </div>
+
+      <div class="tactic-card">
+        <div class="tactic-num">02</div>
+        <div class="tactic-body">
+          <h4>Cast Parallel to Shore Along Sandbars</h4>
+          <p>The trough between the beach and the outer sandbar is prime ambush territory. Cast parallel to the beach (not straight out) and retrieve along the edge of the bar. Predators patrol this lane constantly looking for trapped baitfish.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Kastmaster</span><span class="tactic-lure-tag">Bucktail Jig</span><span class="tactic-lure-tag">Swimbait</span></div>
+        </div>
+      </div>
+
+      <div class="tactic-card">
+        <div class="tactic-num">03</div>
+        <div class="tactic-body">
+          <h4>Match the Topwater Window Precisely</h4>
+          <p>The Super Spook is a finesse play for calm, low-light conditions only. Don't use it mid-day in choppy surf — it will be ignored. Save it specifically for the first and last 90 minutes of light. When conditions are right, it can be the deadliest lure in your bag for roosterfish.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Super Spook</span></div>
+        </div>
+      </div>
+
+      <div class="tactic-card">
+        <div class="tactic-num">04</div>
+        <div class="tactic-body">
+          <h4>Watch for Birds — Then Get There Fast</h4>
+          <p>Frigate birds and pelicans diving means actively feeding fish below. When you see this, immediately switch to the fastest lure you have (Kastmaster) and power-cast into the middle of the action. You have 3–5 minutes before the school disperses. Don't waste time changing leaders.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Kastmaster</span><span class="tactic-lure-tag">Crystal Minnow</span></div>
+        </div>
+      </div>
+
+      <div class="tactic-card">
+        <div class="tactic-num">05</div>
+        <div class="tactic-body">
+          <h4>Slow Down When Fish Follow But Don't Strike</h4>
+          <p>If you see a fish following your lure to the beach without committing, your retrieve is too fast. Drop to the swimbait or bucktail jig and slow everything down. Give the fish an easier decision — pause the lure, let it flutter, and often the strike comes on the fall.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Swimbait</span><span class="tactic-lure-tag">Bucktail Jig</span></div>
+        </div>
+      </div>
+
+      <div class="tactic-card">
+        <div class="tactic-num">06</div>
+        <div class="tactic-body">
+          <h4>Roosterfish: Long Pauses Win</h4>
+          <p>If roosterfish are your target, they respond to patience. Cast the Super Spook or Crystal Minnow near the resort's dock pilings or any structure, twitch twice, then hold completely still for 5–8 seconds. Roosters will often circle and strike during the pause. Resist the urge to keep moving the lure.</p>
+          <div class="tactic-lures"><span class="tactic-lure-tag">Super Spook</span><span class="tactic-lure-tag">Crystal Minnow</span><span class="tactic-lure-tag">Bucktail Jig</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div id="panel-setup" class="panel">
+    <div class="section-label">Your Gear Configuration</div>
+
+    <div class="setup-section">
+      <div class="setup-card">
+        <h4>Rod & Reel</h4>
+        <div class="setup-row"><span class="key">Rod</span><span class="val">11' Travel Surf Rod</span></div>
+        <div class="setup-row"><span class="key">Reel Type</span><span class="val">Spinning</span></div>
+        <div class="setup-row"><span class="key">Main Line</span><span class="val">40 lb Braid</span></div>
+        <div class="setup-row"><span class="key">Shock Leader</span><span class="val">60 lb Mono</span></div>
+        <div class="setup-row"><span class="key">Fluoro Leader</span><span class="val">30 lb Fluorocarbon, 3–4 ft</span></div>
+        <div class="setup-row"><span class="key">Braid-to-Mono</span><span class="val">FG Knot or Albright</span></div>
+        <div class="setup-row"><span class="key">Mono-to-Fluoro</span><span class="val">Double Uni or Blood Knot</span></div>
+      </div>
+
+      <div class="quick-tip">
+        "Your 30 lb fluoro leader is the right call for sierra mackerel and barracuda — their teeth will shred anything lighter. The 60 lb mono shock leader protects against abrasion during the cast and on the retrieve through breaking waves."
+      </div>
+
+      <div class="setup-card">
+        <h4>Leader Rigging by Lure</h4>
+        <div class="setup-row"><span class="key">Kastmaster Spoon</span><span class="val">Snap swivel → direct tie</span></div>
+        <div class="setup-row"><span class="key">Bucktail Jig</span><span class="val">Direct tie to leader</span></div>
+        <div class="setup-row"><span class="key">Swimbait</span><span class="val">Direct tie, loop knot ideal</span></div>
+        <div class="setup-row"><span class="key">Super Spook</span><span class="val">Loop knot (Rapala knot)</span></div>
+        <div class="setup-row"><span class="key">Crystal Minnow</span><span class="val">Loop knot for best action</span></div>
+      </div>
+
+      <div class="setup-card">
+        <h4>Lure Sequence by Conditions</h4>
+        <div class="setup-row"><span class="key">Calm, glassy, sunrise/sunset</span><span class="val">Super Spook → Crystal Minnow</span></div>
+        <div class="setup-row"><span class="key">Moderate surf, any time</span><span class="val">Kastmaster → Swimbait</span></div>
+        <div class="setup-row"><span class="key">Slow bite, no action</span><span class="val">Bucktail Jig (slow down)</span></div>
+        <div class="setup-row"><span class="key">Birds working / feeding fish</span><span class="val">Kastmaster (go fast)</span></div>
+        <div class="setup-row"><span class="key">Overcast, any depth</span><span class="val">Crystal Minnow (rattle)</span></div>
+      </div>
+
+      <div class="quick-tip">
+        "Rinse your reel with fresh water every evening at the resort — saltwater spray is brutal on bearings, especially with budget spinning reels. Takes 30 seconds and saves your trip."
+      </div>
+
+      <div class="setup-card">
+        <h4>Travel Packing Notes</h4>
+        <div class="setup-row"><span class="key">Lure storage</span><span class="val">Plano 3600 slim tray</span></div>
+        <div class="setup-row"><span class="key">Leader spools</span><span class="val">Pre-cut 4 ft sections in bag</span></div>
+        <div class="setup-row"><span class="key">Must-have tools</span><span class="val">Pliers, braid scissors, swivels</span></div>
+        <div class="setup-row"><span class="key">Sun protection</span><span class="val">Buff, UPF shirt, SPF50</span></div>
+        <div class="setup-row"><span class="key">Carry-on friendly?</span><span class="val">Lures in checked bag only</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">UNICO 20°105° · Riviera Nayarit, Mexico · Shore Strike Field Guide</div>
+
+</div>
+
+<script>
+  // ── Tab / lure navigation ─────────────────────────────────────────
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleLure(card) {
+    const wasExpanded = card.classList.contains('expanded');
+    document.querySelectorAll('.lure-card').forEach(c => c.classList.remove('expanded'));
+    if (!wasExpanded) card.classList.add('expanded');
+    const hint = card.querySelector('.expand-hint');
+    if (hint) hint.textContent = card.classList.contains('expanded') ? 'tap to close ↑' : 'tap for details ↓';
+  }
+
+  // ── Offline image cache (IndexedDB) ──────────────────────────────
+  const FISH_IMAGES = [
+    {
+      id: 'jack',
+      urls: [
+        'https://mexicanfish.com/wp-content/uploads/Pacific-Crevalle-Jack-Caranx-caninus.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pacific_Crevalle_Jack.jpg/800px-Pacific_Crevalle_Jack.jpg'
+      ]
+    },
+    {
+      id: 'roosterfish',
+      urls: [
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Roosterfish_nematistius_pectoralis.jpg/1200px-Roosterfish_nematistius_pectoralis.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/0/04/Roosterfish_nematistius_pectoralis.jpg'
+      ]
+    },
+    {
+      id: 'sierra',
+      urls: [
+        'https://mexicanfish.com/wp-content/uploads/Sierra-Mackerel-Scomberomorus-sierra.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Scomberomorus_sierra.jpg/1200px-Scomberomorus_sierra.jpg'
+      ]
+    },
+    {
+      id: 'needlefish',
+      urls: [
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Strongylura_marina.jpg/1200px-Strongylura_marina.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/6/6c/Strongylura_marina.jpg'
+      ]
+    },
+    {
+      id: 'ladyfish',
+      urls: [
+        'https://thebeachfisher.com/wp-content/uploads/2022/04/Ladyfish-scaled.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Elops_saurus_cropped.jpg/1200px-Elops_saurus_cropped.jpg'
+      ]
+    },
+    {
+      id: 'bonito',
+      urls: [
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pacific_Bonito.jpg/1200px-Pacific_Bonito.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/5/5a/Pacific_Bonito.jpg'
+      ]
+    }
+  ];
+
+  // SVG placeholder shown while loading / if offline with no cache
+  const PLACEHOLDERS = {
+    jack:       { emoji: '🐟', color: '#1a4a6a', label: 'Jack Crevalle' },
+    roosterfish:{ emoji: '🐠', color: '#1a5040', label: 'Roosterfish' },
+    sierra:     { emoji: '🐡', color: '#2a3a5a', label: 'Sierra Mackerel' },
+    needlefish: { emoji: '🦑', color: '#1a3a4a', label: 'Needlefish' },
+    ladyfish:   { emoji: '🐟', color: '#1a4a3a', label: 'Ladyfish' },
+    bonito:     { emoji: '🐠', color: '#2a2a5a', label: 'Pacific Bonito' },
+  };
+
+  function makePlaceholder(id) {
+    const p = PLACEHOLDERS[id] || { emoji: '🐟', color: '#1a3a5c', label: id };
+    return `data:image/svg+xml,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="360">
+        <rect width="800" height="360" fill="${p.color}"/>
+        <text x="400" y="160" font-size="72" text-anchor="middle" dominant-baseline="middle">${p.emoji}</text>
+        <text x="400" y="230" font-size="22" fill="#8aafc9" text-anchor="middle" font-family="sans-serif">${p.label}</text>
+        <text x="400" y="265" font-size="14" fill="#4a6882" text-anchor="middle" font-family="sans-serif">Tap "Save for Offline" to cache photos</text>
+      </svg>`
+    )}`;
+  }
+
+  // ── IndexedDB helpers ─────────────────────────────────────────────
+  let db;
+  function openDB() {
+    return new Promise((res, rej) => {
+      if (db) return res(db);
+      const req = indexedDB.open('ShoreStrikeImages', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('images');
+      req.onsuccess = e => { db = e.target.result; res(db); };
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+  async function dbGet(key) {
+    const d = await openDB();
+    return new Promise((res, rej) => {
+      const tx = d.transaction('images', 'readonly');
+      const req = tx.objectStore('images').get(key);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+  async function dbSet(key, val) {
+    const d = await openDB();
+    return new Promise((res, rej) => {
+      const tx = d.transaction('images', 'readwrite');
+      tx.objectStore('images').put(val, key);
+      tx.oncomplete = res;
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+
+  // Convert image URL → base64 data URL via canvas (handles CORS where possible)
+  function fetchAsDataURL(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        } catch (e) {
+          // CORS tainted canvas — fall back to blob approach
+          reject(e);
+        }
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function fetchAsBlobURL(url) {
+    return fetch(url)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+      .then(blob => new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result);
+        reader.onerror = rej;
+        reader.readAsDataURL(blob);
+      }));
+  }
+
+  async function fetchAndCacheImage(fishDef) {
+    // Try each URL until one works
+    for (const url of fishDef.urls) {
+      try {
+        const dataURL = await fetchAsBlobURL(url).catch(() => fetchAsDataURL(url));
+        if (dataURL && dataURL.startsWith('data:image')) {
+          await dbSet(fishDef.id, dataURL);
+          return dataURL;
+        }
+      } catch (_) { /* try next */ }
+    }
+    return null;
+  }
+
+  // Apply a cached or freshly-fetched data URL to an img element
+  async function applyImage(fishId, imgEl) {
+    try {
+      const cached = await dbGet(fishId);
+      if (cached) {
+        imgEl.src = cached;
+        imgEl.dataset.cached = 'true';
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  // ── UI: cache-status banner ───────────────────────────────────────
+  function updateCacheStatus(cachedCount, total) {
+    const banner = document.getElementById('cache-banner');
+    if (!banner) return;
+    if (cachedCount === total) {
+      banner.innerHTML = `✅ All ${total} fish photos saved offline — no internet needed!`;
+      banner.className = 'cache-banner cache-done';
+    } else if (cachedCount > 0) {
+      banner.innerHTML = `📶 ${cachedCount}/${total} photos cached. <button class="cache-btn" onclick="cacheAllImages()">Cache remaining</button>`;
+      banner.className = 'cache-banner cache-partial';
+    } else {
+      banner.innerHTML = `📶 Photos need WiFi to display. <button class="cache-btn" onclick="cacheAllImages()">Save for Offline</button>`;
+      banner.className = 'cache-banner cache-none';
+    }
+  }
+
+  async function cacheAllImages() {
+    const banner = document.getElementById('cache-banner');
+    if (banner) {
+      banner.innerHTML = '⏳ Downloading photos… please stay on WiFi';
+      banner.className = 'cache-banner cache-partial';
+    }
+
+    let saved = 0;
+    for (const fishDef of FISH_IMAGES) {
+      const imgEl = document.querySelector(`img[data-fish="${fishDef.id}"]`);
+      // Already cached?
+      const existing = await dbGet(fishDef.id).catch(() => null);
+      if (existing) {
+        if (imgEl) { imgEl.src = existing; imgEl.dataset.cached = 'true'; }
+        saved++;
+        if (banner) banner.innerHTML = `⏳ Saving photos… ${saved}/${FISH_IMAGES.length}`;
+        continue;
+      }
+      const dataURL = await fetchAndCacheImage(fishDef);
+      if (dataURL) {
+        if (imgEl) { imgEl.src = dataURL; imgEl.dataset.cached = 'true'; }
+        saved++;
+      }
+      if (banner) banner.innerHTML = `⏳ Saving photos… ${saved}/${FISH_IMAGES.length}`;
+    }
+    updateCacheStatus(saved, FISH_IMAGES.length);
+  }
+
+  // ── Boot: load cached images on startup ──────────────────────────
+  async function initImages() {
+    let cachedCount = 0;
+    for (const fishDef of FISH_IMAGES) {
+      const imgEl = document.querySelector(`img[data-fish="${fishDef.id}"]`);
+      if (!imgEl) continue;
+      // Set placeholder immediately
+      imgEl.src = makePlaceholder(fishDef.id);
+      const loaded = await applyImage(fishDef.id, imgEl);
+      if (loaded) cachedCount++;
+    }
+    updateCacheStatus(cachedCount, FISH_IMAGES.length);
+
+    // If all cached, we're done. Otherwise try live URLs for any uncached ones.
+    if (cachedCount < FISH_IMAGES.length) {
+      for (const fishDef of FISH_IMAGES) {
+        const imgEl = document.querySelector(`img[data-fish="${fishDef.id}"]`);
+        if (!imgEl || imgEl.dataset.cached) continue;
+        // Try loading live — if it works, show it (but don't auto-save)
+        const liveImg = new Image();
+        liveImg.crossOrigin = 'anonymous';
+        liveImg.onload = () => { imgEl.src = liveImg.src; };
+        liveImg.src = fishDef.urls[0];
+      }
+    }
+  }
+
+  // Run on DOM ready
+  document.addEventListener('DOMContentLoaded', initImages);
+</script>
+</body>
+</html>
